@@ -12,7 +12,6 @@ import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
 import Data.Version (Version)
 import Data.Version as Version
-import Debug.Trace (spy, traceM)
 import Effect (Effect)
 import Effect.Aff (error, throwError)
 import Effect.Class (liftEffect)
@@ -59,8 +58,14 @@ resolve versionsContents tool = do
     Latest -> liftEffect do
       Core.info $ fold [ "Fetching latest tag for ", Tool.name tool ]
 
+      Core.info "Decoding versions..."
+
       let
-        version = lmap printJsonDecodeError $ (_ .: Tool.name tool) =<< decodeJson (spy "versionsContents" versionsContents)
+        version = lmap printJsonDecodeError $ (_ .: Tool.name tool) =<< decodeJson versionsContents
+
+      Core.info "Parsing versions..."
+
+      let
         parse = lmap parseErrorMessage <<< Version.parseVersion
 
       case parse =<< version of
@@ -68,5 +73,6 @@ resolve versionsContents tool = do
           Core.setFailed $ fold [ "Unable to parse version: ", e ]
           throwError $ error "Unable to complete fetching version."
 
-        Right v ->
+        Right v -> do
+          Core.info "Successfully fetched version."
           pure { tool, version: v }
