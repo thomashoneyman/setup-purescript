@@ -12,6 +12,7 @@ import Data.Newtype (unwrap)
 import Data.Traversable (traverse)
 import Data.Version (Version)
 import Data.Version as Version
+import Debug.Trace (spy, traceM)
 import Effect (Effect)
 import Effect.Aff (error, throwError)
 import Effect.Class (liftEffect)
@@ -59,7 +60,7 @@ resolve versionsContents tool = do
       Core.info $ fold [ "Fetching latest tag for ", Tool.name tool ]
 
       let
-        version = lmap printJsonDecodeError $ (_ .: Tool.name tool) =<< decodeJson versionsContents
+        version = lmap printJsonDecodeError $ (_ .: Tool.name tool) =<< decodeJson (spy "versionsContents" versionsContents)
         parse = lmap parseErrorMessage <<< Version.parseVersion
 
       case parse =<< version of

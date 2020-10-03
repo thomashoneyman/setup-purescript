@@ -7,8 +7,10 @@
   , "argonaut-codecs"
   , "argonaut-core"
   , "console"
+  , "debug"
   , "effect"
   , "github-actions-toolkit"
+  , "monad-loops"
   , "node-fs"
   , "node-path"
   , "node-process"
@@ -16,7 +18,6 @@
   , "psci-support"
   , "record"
   , "versions"
-  , "monad-loops"
   ]
 , packages = ./packages.dhall
 , sources = [ "src/**/*.purs" ]
