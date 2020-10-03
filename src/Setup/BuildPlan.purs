@@ -9,7 +9,7 @@ import Data.Bifunctor (lmap)
 import Data.Either (Either(..))
 import Data.Foldable (fold)
 import Data.Newtype (unwrap)
-import Data.Traversable (traverse)
+import Data.Traversable (for, traverse)
 import Data.Version (Version)
 import Data.Version as Version
 import Effect (Effect)
@@ -29,7 +29,11 @@ type BuildPlan = Array { tool :: Tool, version :: Version }
 
 -- | Construct the list of tools that sholud be downloaded and cached by the action
 constructBuildPlan :: Json -> ExceptT Error Effect BuildPlan
-constructBuildPlan json = traverse (resolve json) Tool.allTools
+constructBuildPlan json = for Tool.allTools \tool -> do
+  liftEffect $ Core.info $ fold [ "Resolving ", Tool.name tool ]
+  res<- resolve json tool
+  liftEffect $ Core.info $ fold [ "Resolved ", Tool.name tool ]
+  pure res
 
 -- | The parsed value of an input field that specifies a version
 data VersionField = Latest | Exact Version
